@@ -1,0 +1,69 @@
+{% liquid 
+  assign default = default | default: false 
+  assign min = 1
+  assign max = 1000
+  assign diff = max | minus: min
+  assign randomNumber = "now" | date: "%N" | modulo: diff | plus: min
+%}
+
+<li 
+  class="
+    {% if default %}active{% endif %} 
+    block
+    border-lightGrey
+    border-t 
+    first:border-t-0
+    last:border-b 
+    [&_.rotate]:transform
+    [&.active_.rotate]:-rotate-90
+    [&:not(.active)_[data-accordion-content]]:max-h-0 
+    [&_[data-accordion-content]]:max-h-[var(--accordion-content-height)]
+    [&_[data-accordion-content]]:duration-500
+    [&_[data-accordion-content]]:transition-all
+    [&_[data-accordion-content]]:ease-out
+    [&_.rotate]:duration-500
+    [&_.rotate]:transition-all
+    [&_.rotate]:ease-out
+    [&_ul]:list-disc
+    [&_ul_li]:border-0
+    [&_ul]:pl-6
+    {{ styles }}
+  "
+  data-accordion-id={{ id }}
+  {{ attr }}
+>
+  <button 
+    id="toggle-{{ id }}-{{ randomNumber }}"
+    aria-controls="content-{{ id }}-{{ randomNumber }}"
+    aria-expanded="{% if default %}true{% else %}false{% endif %}"
+    data-accordion-toggle
+    class="flex items-center w-full py-5" type="button" 
+    aria-label="Open accordion for {{ label | strip_html }}"
+    type="button"
+  >
+    {{ label }}
+    {% case icon %}
+      {% when 'plus' %}
+        <span aria-hidden="true" class="p-0.5 h-4 w-4 ml-auto relative icon">
+          <span class="rotate block w-0.5 h-full absolute left-1/2 top-0 -translate-x-1/2 bg-primaryDark"></span>
+          <span class="block w-full h-0.5 absolute top-1/2 left-0 -translate-y-1/2 bg-primaryDark"></span>
+        </span>
+      {% else %}
+        <span aria-hidden="true" class="p-0.5 h-5 w-6 ml-auto icon">
+          <span class="rotate block w-full h-full">{% render 'icons' icon: 'chevron' %}</span>
+        </span>
+    {% endcase %}
+  </button>
+  <div 
+    aria-hidden="{% unless default %}true{% else %}false{% endunless %}"
+    id="content-{{ id }}-{{ randomNumber }}"
+    role="region"
+    aria-labelledby="toggle-{{ id }}-{{ randomNumber }}"
+    data-accordion-content
+    class="overflow-hidden {% unless default %} hidden {% endunless %}" 
+  >
+    <div class="pb-5 [&_p]:mb-4">
+      {{ content }}
+    </div>
+  </div>
+</li>
